@@ -1,17 +1,6 @@
 import mongoose from 'mongoose';
 import Prediction from '../models/Prediction.js';
-import { body, ExpressValidator } from 'express-validator';
-import crypto from 'crypto'
-
-
-const validatePredictions = [
-      body('time').notEmpty().withMessage("Time is empty"),
-      body('fixtures').notEmpty().withMessage("Fixture must not be Empty"),
-      body('odds').notEmpty().withMessage("Odds must not be Empty"),
-      body('predictions').notEmpty().withMessage("Predictions must  not be empty")
-]
-
-
+import crypto from 'crypto';
 
 // Get all predictions
 export const getAllPredictions = async (req, res) => {
@@ -24,16 +13,14 @@ export const getAllPredictions = async (req, res) => {
     }
 };
 
-//Get Prediction by Id
+// Get Prediction by Id
 export const getPredictionById = async (req, res) => {
     try {
         const predictionId = req.params.id;
-
-        // Find the prediction by its _id
         const prediction = await Prediction.findOne({ _id: predictionId });
 
         if (!prediction) {
-            return res.status(404).json({ message: 'Cannot Find Prediction' });
+            return res.status(404).json({ message: 'Cannot find prediction' });
         }
 
         res.json(prediction);
@@ -43,8 +30,7 @@ export const getPredictionById = async (req, res) => {
     }
 };
 
-
-//Generate Unique Game Id 
+// Generate Unique Game Id
 const generateId = () => {
     return crypto.randomBytes(3).toString('hex');
 };
@@ -56,7 +42,6 @@ export const createPrediction = async (req, res) => {
         game_id: UniqueID,
         date: req.body.date,
         predictions: req.body.predictions
-    
     });
 
     try {
@@ -100,25 +85,23 @@ export const addPrediction = async (req, res) => {
     }
 };
 
-//Delet Created Prediction
+// Delete Created Prediction
 export const deletePredictionById = async (req, res) => {
     try {
         const prediction = await Prediction.findByIdAndDelete(req.params.id);
-        if(!prediction){
-           return  res.status(404).json({message: 'prediction not found'});
+        if (!prediction) {
+            return res.status(404).json({ message: 'Prediction not found' });
         }
-        res.status(200).json({message: 'Prediction Deleted Succcessfully'});
- 
+        res.status(200).json({ message: 'Prediction deleted successfully' });
     } catch (error) {
-      return res.status(500).json({message: error.message});
-        
+        return res.status(500).json({ message: error.message });
     }
 }
 
 // Delete a prediction item inside an object by its ID
 export const deletePredictionItemById = async (req, res) => {
     const { id, itemId } = req.params;
-  
+
     try {
         const prediction = await Prediction.findByIdAndUpdate(
             id,
@@ -137,19 +120,19 @@ export const deletePredictionItemById = async (req, res) => {
     }
 };
 
-//Edit Each Prediction Item by Id
+// Edit Each Prediction Item by Id
 export const EditPredictionById = async (req, res) => {
-    const {id, itemId} = req.params;
-    const {odds, fixtures, time, prediction, result} = req.body;
+    const { id, itemId } = req.params;
+    const { odds, fixtures, time, prediction, result } = req.body;
 
     try {
         const predictions = await Prediction.findById(id);
-        if(!predictions) {
-            return res.status(404).json({message: 'Prediction not Found'});
+        if (!predictions) {
+            return res.status(404).json({ message: 'Prediction not found' });
         }
         const item = predictions.predictions.id(itemId);
-        if(!item){
-            return res.status(404).json({message: 'Prediction Item not Found'})
+        if (!item) {
+            return res.status(404).json({ message: 'Prediction item not found' });
         }
 
         // Update the fields
@@ -160,13 +143,10 @@ export const EditPredictionById = async (req, res) => {
         if (fixtures) item.fixtures = fixtures;
 
         await predictions.save();
-    
-        res.status(200).json({message: 'Prediction Edited Successfully', predictions});
-        
+
+        res.status(200).json({ message: 'Prediction edited successfully', predictions });
     } catch (error) {
-        return res.status(500).json({message: error.message})
+        console.error('Error editing prediction item:', error);
+        return res.status(500).json({ message: error.message });
     }
 };
-
-
-
