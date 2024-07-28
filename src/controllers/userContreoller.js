@@ -1,4 +1,10 @@
 import User from '../models/Users.js'
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+
+// Load environment variables
+dotenv.config();
 
 //Register a User
 export const registerUser = async (req, res, next) => {
@@ -21,15 +27,30 @@ export const registerUser = async (req, res, next) => {
     }
 
     try {
+        //Generate password and salt
+        const salt = 10;
+        const passwordhash = await bcrypt.hash(password, salt);
         const user = await User.create({
             username,
             email,
-            password,
+            password: passwordhash,
             role
+        });
+           // Generate a JWT token
+           const maxAge = 3 * 60 * 60; // 3 hours
+           const token = jwt.sign(
+               { id: user._id, username, email: user.email, role: user.role },
+               process.env.JWT_SECRET,
+               { expiresIn: maxAge }
+           );
+         // Set the JWT token as a cookie
+         res.cookie("jwt", token, {
+            httpOnly: true,
+            maxAge: maxAge * 1000, // Convert to milliseconds
         });
         res.status(200).json({
             message: "User created successfully",
-            user,
+            user: user._id,
         });
     } catch (error) {
         res.status(500).json({
@@ -40,37 +61,65 @@ export const registerUser = async (req, res, next) => {
 };
 
 //Login User
-
 export const loginUser = async (req, res, next) => {
-    const { email, password } = req.body
-  
-  
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Username or Password not present",
-      })
+    const { email, password } = req.body;
+
+    if (!email) {
+        return res.status(400).json({
+            message: "Email not found",
+        });
     }
+    if (!password) {
+        return res.status(400).json({
+            message: "Password not found",
+        });
+    }
+
     try {
-        const user = await User.findOne({email, password});
-        if(!user){
-            res.status(401).json({
-                message: "Login not Successful",
-                error: "user not found"
-            })
-        } else 
-            res.status(200).json({
-            message: "Login Successfull",
-            user,
-        })
-        
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({
+                message: "Login not successful",
+                error: "User not found"
+            });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+            const maxAge = 3 * 60 * 60;
+            const token = jwt.sign(
+                { id: user._id, email: user.email, role: user.role },
+                process.env.JWT_SECRET,
+                {
+                    expiresIn: maxAge,
+                }
+            );
+
+            // Set the JWT token as a cookie
+            res.cookie("jwt", token, {
+                httpOnly: true,
+                maxAge: maxAge * 1000, // Convert to milliseconds
+            });
+
+            return res.status(200).json({
+                message: "Login successful",
+                user,
+            });
+        } else {
+            return res.status(401).json({
+                message: "Login not successful",
+                error: "Invalid password"
+            });
+        }
     } catch (error) {
-        res.status(400).json({
-            message:"An Error Occur",
-            error:error.message,
-        })
-        
+        return res.status(500).json({
+            message: "An error occurred",
+            error: error.message,
+        });
     }
-}
+};
+
+
 
 //Update User role to Basic or Admin
 export const updateUser = async (req, res, next) => {

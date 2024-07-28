@@ -4,10 +4,18 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import routes from './src/routes/user/indexRoutes.js';
 import adminRoutes from './src/routes/admin/indexRoutes.js'
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import { adminAuth, userAuth } from './src/middlewares/auth.js';
+
+
 
 
 const app = express();
+app.use(cookieParser());
 const port = process.env.PORT || 3001;
+
+dotenv.config();
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -24,7 +32,7 @@ db.once('open', () => {
 });
 
 app.use('/api/v1', routes);
-app.use('/api/v1/admin', adminRoutes )
+app.use('/api/v1/admin', adminAuth, adminRoutes )
 
 app.get("/", (req, res) => {
     res.send("Welcome to soccer pulse 💵💵💵 ");
