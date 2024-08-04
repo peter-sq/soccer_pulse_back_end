@@ -46,7 +46,7 @@ export const userAuth = (req, res, next) => {
         })
     } else{
         return res.status(401).json({
-            message: "Noy Authorized, Token is Not Available"
+            message: "Not Authorized, Token is Not Available"
         })
     }
 

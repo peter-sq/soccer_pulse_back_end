@@ -1,16 +1,18 @@
-const mongoose = require('mongoose');
+// db.js
+import mongoose from 'mongoose';
+
 
 const connectDB = async () => {
+  if (mongoose.connection.readyState === 0) {
   try {
-    await mongoose.connect('mongodb://localhost:27017/soccer-predictions', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/soccer-predictions';
+    await mongoose.connect(uri);
     console.log('MongoDB connected');
   } catch (err) {
     console.error(err.message);
     process.exit(1);
   }
+}
 };
 
-module.exports = connectDB;
+export default connectDB;

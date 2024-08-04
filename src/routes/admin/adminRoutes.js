@@ -10,15 +10,14 @@ import {
 } from '../../controllers/predictionController.js';
 import { registerUser, loginUser, updateUser, deleteUser } from '../../controllers/userContreoller.js';
 import { validatePredictions, handleValidationErrors } from '../../middlewares/validation.js';
+import { adminAuth, userAuth } from '../../middlewares/auth.js';
 
 const router = express.Router();
 
 // Routes
-router.post('/auth/login', loginUser);
-router.post('/auth/register', registerUser);
 router.put('/auth/update-user', updateUser);
 router.delete('/auth/delete-user', deleteUser);
-router.post('/create-game', createPrediction);
+router.post('/create-game', adminAuth, createPrediction);
 router.patch('/add-game/:id', validatePredictions, handleValidationErrors, addPrediction);
 router.delete('/delete-game/:id', deletePredictionById);
 router.delete('/delete-game/:id/item/:itemId', deletePredictionItemById);

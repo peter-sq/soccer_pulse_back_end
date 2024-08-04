@@ -10,53 +10,73 @@ dotenv.config();
 export const registerUser = async (req, res, next) => {
     const { username, email, password, role } = req.body;
 
-      // Check if all required fields are present
-      if (!email) {
+    // Check if all required fields are present
+    if (!email) {
         return res.status(400).json({ 
-            message: "Email is Required" });
-    }
-    else if (!password){
+            message: "Email is required" 
+        });
+    } else if (!password) {
         return res.status(400).json({
-            message: "password must not be empty"
-        })
-    }
-    else if (password.length < 6) {
+            message: "Password must not be empty"
+        });
+    } else if (password.length < 6) {
         return res.status(400).json({ 
             message: "Password must be greater than 6 characters" 
         });
     }
 
     try {
-        //Generate password and salt
+        // Generate password hash and salt
         const salt = 10;
-        const passwordhash = await bcrypt.hash(password, salt);
+        const passwordHash = await bcrypt.hash(password, salt);
         const user = await User.create({
             username,
             email,
-            password: passwordhash,
+            password: passwordHash,
             role
         });
-           // Generate a JWT token
-           const maxAge = 3 * 60 * 60; // 3 hours
-           const token = jwt.sign(
-               { id: user._id, username, email: user.email, role: user.role },
-               process.env.JWT_SECRET,
-               { expiresIn: maxAge }
-           );
-         // Set the JWT token as a cookie
-         res.cookie("jwt", token, {
+
+        // Generate a JWT token
+        const maxAge = 3 * 60 * 60; // 3 hours
+        const token = jwt.sign(
+            { id: user._id, username, email: user.email, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: maxAge }
+        );
+
+        // Set the JWT token as a cookie
+        res.cookie("jwt", token, {
             httpOnly: true,
             maxAge: maxAge * 1000, // Convert to milliseconds
         });
+
         res.status(200).json({
             message: "User created successfully",
             user: user._id,
         });
     } catch (error) {
-        res.status(500).json({
-            message: "User not created successfully",
-            error: error.message,
-        });
+        if (error.code === 11000) {
+            // Handle duplicate key error
+            if (error.keyValue && error.keyValue.username) {
+                res.status(500).json({
+                    message: "Username already exists. Please choose a different username."
+                });
+            } else if (error.keyValue && error.keyValue.email) {
+                res.status(500).json({
+                    message: "Email already exists. Please use a different email."
+                });
+            } else {
+                res.status(500).json({
+                    message: "User not created successfully",
+                    error: error.message,
+                });
+            }
+        } else {
+            res.status(500).json({
+                message: "User not created successfully",
+                error: error.message,
+            });
+        }
     }
 };
 

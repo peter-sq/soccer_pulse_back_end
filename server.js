@@ -1,38 +1,33 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import routes from './src/routes/user/indexRoutes.js';
-import adminRoutes from './src/routes/admin/indexRoutes.js'
+import adminRoutes from './src/routes/admin/indexRoutes.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import { adminAuth, userAuth } from './src/middlewares/auth.js';
 
-
-
-
-const app = express();
-app.use(cookieParser());
-const port = process.env.PORT || 3001;
+import connectDB from './src/config/db.js';
 
 dotenv.config();
 
+const app = express();
+const port = process.env.PORT || 3001;
+
+// Connect to the database
+connectDB();
+
+// Middleware
+app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(cors());
 
-mongoose.connect('mongodb://localhost:27017/soccer-prediction', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => {
-    console.log('Connected to MongoDB');
-});
+// Allow requests from http://localhost:3000 with credentials
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
 
 app.use('/api/v1', routes);
-app.use('/api/v1/admin', adminAuth, adminRoutes )
+app.use('/api/v1/admin', adminRoutes);
 
 app.get("/", (req, res) => {
     res.send("Welcome to soccer pulse 💵💵💵 ");
