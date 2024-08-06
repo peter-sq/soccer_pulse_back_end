@@ -9,7 +9,12 @@ const connectDB = async () => {
     try {
       const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/soccer-predictions';
       console.log('Connecting to MongoDB with URI:', uri); // Log URI for debugging
-      await mongoose.connect(uri);
+      
+      await mongoose.connect(uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      
       console.log('MongoDB connected');
     } catch (err) {
       console.error('Connection error:', err.message);
