@@ -17,7 +17,7 @@ const router = express.Router();
 // Routes
 router.put('/auth/update-user', updateUser);
 router.delete('/auth/delete-user', deleteUser);
-router.post('/create-game', adminAuth, createPrediction);
+router.post('/create-game', createPrediction);
 router.patch('/add-game/:id', validatePredictions, handleValidationErrors, addPrediction);
 router.delete('/delete-game/:id', deletePredictionById);
 router.delete('/delete-game/:id/item/:itemId', deletePredictionItemById);

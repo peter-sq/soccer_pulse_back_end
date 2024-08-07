@@ -124,6 +124,7 @@ export const loginUser = async (req, res, next) => {
             return res.status(200).json({
                 message: "Login successful",
                 user,
+                token
             });
         } else {
             return res.status(401).json({
