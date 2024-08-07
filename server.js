@@ -20,10 +20,20 @@ connectDB();
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-// Allow requests from http://localhost:3000 with credentials
+// Allow requests from http://localhost:3000 and https://www.soccerpulse.com.ng with credentials
+const allowedOrigins = ['http://localhost:3000', 'https://www.soccerpulse.com.ng'];
+
 app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    credentials: true
 }));
 
 app.use('/api/v1', routes);
