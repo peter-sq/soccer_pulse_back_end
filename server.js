@@ -5,7 +5,6 @@ import routes from './src/routes/user/indexRoutes.js';
 import adminRoutes from './src/routes/admin/indexRoutes.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-
 import connectDB from './src/config/db.js';
 
 dotenv.config();
@@ -20,7 +19,7 @@ connectDB();
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-// Allow requests from http://localhost:3000 and https://www.soccerpulse.com.ng with credentials
+// Allow requests from specific origins with credentials
 const allowedOrigins = ['http://localhost:3000', 'https://www.soccerpulse.com.ng'];
 
 app.use(cors({
@@ -33,16 +32,28 @@ app.use(cors({
         }
         return callback(null, true);
     },
-    credentials: true
+    credentials: true // Allow credentials (cookies, authorization headers, etc.)
 }));
 
+// Routes
 app.use('/api/v1', routes);
 app.use('/api/v1/admin', adminRoutes);
 
+// Root route
 app.get("/", (req, res) => {
     res.send("Welcome to soccer pulse 💵💵💵 ");
 });
 
+// Error handling for CORS
+app.use((err, req, res, next) => {
+    if (err instanceof Error) {
+        res.status(403).json({ message: err.message });
+    } else {
+        next(err);
+    }
+});
+
+// Start the server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
