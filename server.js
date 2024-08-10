@@ -32,7 +32,7 @@ app.use(cors({
         }
         return callback(null, true);
     },
-    credentials: true // Allow credentials (cookies, authorization headers, etc.)
+    credentials: true 
 }));
 
 // Routes
