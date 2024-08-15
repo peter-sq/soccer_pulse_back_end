@@ -20,7 +20,8 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 // Allow requests from specific origins with credentials
-const allowedOrigins = ['http://localhost:3000', 'https://www.soccerpulse.com.ng', 'https://soccer-pulse-back-end.onrender.com'];
+const allowedOrigins = ['http://localhost:3000', 'https://www.soccerpulse.com.ng', 
+    'https://soccer-pulse-back-end.onrender.com', 'https://soccerpulse.com.ng'];
 
 app.use(cors({
     origin: function (origin, callback) {
@@ -34,6 +35,8 @@ app.use(cors({
     },
     credentials: true 
 }));
+
+app.options('*', cors()); // Handle preflight requests
 
 // Routes
 app.use('/api/v1', routes);
