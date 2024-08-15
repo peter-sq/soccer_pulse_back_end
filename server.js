@@ -20,7 +20,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 // Allow requests from specific origins with credentials
-const allowedOrigins = ['http://localhost:3000', 'https://www.soccerpulse.com.ng'];
+const allowedOrigins = ['http://localhost:3000', 'https://www.soccerpulse.com.ng', 'https://soccer-pulse-back-end.onrender.com'];
 
 app.use(cors({
     origin: function (origin, callback) {
