@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const predictionItemSchema = new mongoose.Schema({
-    time: { type: String, required: true },
+    league: { type: String, required: true },
     prediction: { type: String, required: true },
     odds: { type: Number, required: true },
     result: { type: String, required: false },

@@ -55,5 +55,4 @@ export const userAuth = (req, res, next) => {
             message: "Not Authorized, Token is Not Available"
         })
     }
-
 }

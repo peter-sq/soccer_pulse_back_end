@@ -60,7 +60,7 @@ export const createPrediction = async (req, res) => {
 export const addPrediction = async (req, res) => {
     const { id } = req.params;
     const newPredictionItem = {
-        time: req.body.time,
+        league: req.body.league,
         prediction: req.body.prediction,
         odds: req.body.odds,
         result: req.body.result,
@@ -123,7 +123,7 @@ export const deletePredictionItemById = async (req, res) => {
 // Edit Each Prediction Item by Id
 export const EditPredictionById = async (req, res) => {
     const { id, itemId } = req.params;
-    const { odds, fixtures, time, prediction, result } = req.body;
+    const { odds, fixtures, league, prediction, result } = req.body;
 
     try {
         const predictions = await Prediction.findById(id);
@@ -136,7 +136,7 @@ export const EditPredictionById = async (req, res) => {
         }
 
         // Update the fields
-        if (time) item.time = time;
+        if (league) item.league = league;
         if (prediction) item.prediction = prediction;
         if (odds) item.odds = odds;
         if (result) item.result = result;
